@@ -173,6 +173,8 @@
 
       /* MOBILE: duas colunas de cards e ajustes de tamanho */
       @media (max-width: 768px) {
+
+
     .theme-page h2 {
       font-size: 2.0rem;
     }
@@ -181,6 +183,10 @@
         font-size: 35px;
       
       }
+
+      footer {
+    position: relative !important;
+  }
 
       .background-fade img {
     content: url('inicio3.jpg');
@@ -434,6 +440,24 @@
     flex-shrink: 0;
     color: #fff;
   }
+
+  .pdf-button {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  padding: 0.8rem 1.5rem;
+  border: 2px solid #fff;
+  background: transparent;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.pdf-button:hover {
+  background: #fff;
+  color: #000;
+}
+
+
 
   .restart-btn {
     padding: 1rem 2.5rem;
@@ -867,16 +891,20 @@ Atua em todo o processo e segmento do produto para mercado.
       <ul class="contact-list">
         <li><i class="fas fa-envelope"></i> <a href="mailto:lanamacedo.paris@gmail.com">lanamacedo.paris@gmail.com</a></li>
         <li><i class="fab fa-instagram"></i> <a href="https://instagram.com/lanamacedo6" target="_blank">@lanamacedo6</a></li>
-        <li><i class="fab fa-whatsapp"></i> <a href="https://api.whatsapp.com/send?phone=5538998401572" target="_blank">Lana Macedo</a></li>
+        <li><i class="fab fa-whatsapp"></i> <a href="https://wa.link/7t9tkq" target="_blank">Lana Macedo</a></li>
       </ul>
+
       <button class="restart-btn" onclick="restartPresentation()">Voltar</button>
+
+
+      
     </div>
   </div>
 
 
     </div>
 
- <script>
+<script>
   const DELAY_BETWEEN_CARDS = 0;
   const THEME_DURATION = 70000;
   const DELAY_BEFORE_SCROLL = 2300;
@@ -902,6 +930,33 @@ Atua em todo o processo e segmento do produto para mercado.
   let scrollChange = 0;
   let scrollContainerGlobal = null;
   let scrollOnComplete = null;
+
+  // Guarda o elemento de áudio para visibilidade e loop
+  const music = document.getElementById("bg-music");
+  if (music) {
+    music.loop = true;
+    music.addEventListener("ended", () => {
+      music.currentTime = 0;
+      music.play().catch(() => {});
+    });
+  }
+
+  // Pausa/retoma música ao trocar de aba
+  document.addEventListener("visibilitychange", () => {
+    if (!music) return;
+    if (document.hidden) {
+      music.pause();
+    } else {
+      music.play().catch(() => {});
+    }
+  });
+
+  // Para música ao fechar/recarregar
+  window.addEventListener("beforeunload", () => {
+    if (!music) return;
+    music.pause();
+    music.currentTime = 0;
+  });
 
   function showPage(index) {
     pages.forEach(id => {
@@ -964,8 +1019,11 @@ Atua em todo o processo e segmento do produto para mercado.
 
           if (pageId !== "page-final") {
             smoothScrollToLinear(scrollContainer, maxScroll, THEME_DURATION, () => {
-              currentPage++;
-              showPage(currentPage);
+              // Espera 2 segundos após o fim do scroll
+              setTimeout(() => {
+                currentPage++;
+                showPage(currentPage);
+              }, 2000);
             });
           }
         }, DELAY_BEFORE_SCROLL);
@@ -981,17 +1039,23 @@ Atua em todo o processo e segmento do produto para mercado.
       return;
     }
 
-    setupTouchPause(page);
+    setupInteractionPause(page);
   }
 
-  function setupTouchPause(container) {
+  function setupInteractionPause(container) {
+    // Remove listeners antigos
     container.removeEventListener("touchstart", onTouchStart);
     container.removeEventListener("touchmove", onTouchMove);
     container.removeEventListener("touchend", onTouchEnd);
+    container.removeEventListener("wheel", onWheel);
 
+    // Adiciona para mobile
     container.addEventListener("touchstart", onTouchStart, { passive: true });
     container.addEventListener("touchmove", onTouchMove, { passive: true });
     container.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    // Adiciona para desktop (rodinha do mouse)
+    container.addEventListener("wheel", onWheel, { passive: true });
   }
 
   function onTouchStart() {
@@ -1003,6 +1067,14 @@ Atua em todo o processo e segmento do produto para mercado.
   }
 
   function onTouchEnd() {
+    if (resumeScrollTimeout) clearTimeout(resumeScrollTimeout);
+    resumeScrollTimeout = setTimeout(() => {
+      resumeScrollManual();
+    }, 1500);
+  }
+
+  function onWheel() {
+    pauseScrollManual();
     if (resumeScrollTimeout) clearTimeout(resumeScrollTimeout);
     resumeScrollTimeout = setTimeout(() => {
       resumeScrollManual();
@@ -1033,58 +1105,52 @@ Atua em todo o processo e segmento do produto para mercado.
     const remainingDuration = THEME_DURATION * (distanceLeft / scrollChange);
 
     smoothScrollToLinear(scrollContainerGlobal, scrollStartPos + scrollChange, remainingDuration, () => {
-      currentPage++;
-      showPage(currentPage);
+      // espera 2s antes de próxima página
+      setTimeout(() => {
+        currentPage++;
+        showPage(currentPage);
+      }, 2000);
     });
   }
 
   function smoothScrollToLinear(container, targetPosition, duration, onComplete) {
-  if (!container) return;
-  if (scrollAnimationFrame) {
-    cancelAnimationFrame(scrollAnimationFrame);
-    scrollAnimationFrame = null;
-  }
-  scrollContainerGlobal = container;
-  scrollStartPos = container.scrollTop;
-  scrollChange = targetPosition - scrollStartPos;
-  scrollDuration = duration;
-  scrollOnComplete = onComplete;
-
-  let startTime = null;
-
-  function animate(currentTime) {
-    if (!startTime) startTime = currentTime;
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / scrollDuration, 1);
-    container.scrollTop = scrollStartPos + scrollChange * progress;
-
-    if (progress < 1 && !scrollPaused) {
-      scrollAnimationFrame = requestAnimationFrame(animate);
-    } else {
+    if (!container) return;
+    if (scrollAnimationFrame) {
+      cancelAnimationFrame(scrollAnimationFrame);
       scrollAnimationFrame = null;
-      if (progress >= 1 && scrollOnComplete) {
-        setTimeout(() => {
+    }
+    scrollContainerGlobal = container;
+    scrollStartPos = container.scrollTop;
+    scrollChange = targetPosition - scrollStartPos;
+    scrollDuration = duration;
+    scrollOnComplete = onComplete;
+
+    let startTime = null;
+
+    function animate(currentTime) {
+      if (!startTime) startTime = currentTime;
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / scrollDuration, 1);
+      container.scrollTop = scrollStartPos + scrollChange * progress;
+
+      if (progress < 1 && !scrollPaused) {
+        scrollAnimationFrame = requestAnimationFrame(animate);
+      } else {
+        scrollAnimationFrame = null;
+        if (progress >= 1 && scrollOnComplete) {
           scrollOnComplete();
-        }, 3000); // Aguarda 2 segundos antes de avançar
+        }
       }
     }
-  }
 
-  scrollAnimationFrame = requestAnimationFrame(animate);
-}
+    scrollAnimationFrame = requestAnimationFrame(animate);
+  }
 
   function startPresentation() {
     document.getElementById("intro")?.classList.add("hidden");
-    document.getElementById("bg-music")?.play();
-   const music = document.getElementById("bg-music");
-   if (music) {
-  music.loop = true;
-  music.addEventListener("ended", () => {
-  music.currentTime = 0;
-  music.play().catch(() => {});
-});
-
-}   
+    if (music) {
+      music.play().catch(() => {});
+    }
     showMusicCard();
     setTimeout(() => {
       document.querySelector("#background-fade img")?.classList.add("active-theme");
@@ -1099,7 +1165,6 @@ Atua em todo o processo e segmento do produto para mercado.
       document.getElementById(id)?.classList.remove("active");
     });
     document.getElementById("intro")?.classList.remove("hidden");
-    const music = document.getElementById("bg-music");
     if (music) {
       music.pause();
       music.currentTime = 0;
@@ -1127,20 +1192,13 @@ Atua em todo o processo e segmento do produto para mercado.
   }
 
 
-  document.addEventListener("visibilitychange", () => {
-  if (!music) return;
-  if (document.hidden) {
-    music.pause();
-  } else {
-    music.play().catch(() => {}); // evita erro se o navegador bloquear
-  }
-});
 
-window.addEventListener("beforeunload", () => {
-  if (!music) return;
-  music.pause();
-  music.currentTime = 0;
-});
+
+
+
+
+
+
 
 </script>
 
