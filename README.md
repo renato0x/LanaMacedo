@@ -3,42 +3,13 @@
   <h1>Lana Macedo</h1>
   <p><em>Portfólio</em></p>
   <br/>
-</div>
-
-<p align="center">
   <a href="https://renato0x.github.io/LanaMacedo/" target="_blank">
-    <img src="https://img.shields.io/badge/GitHub%20Pages-Online-222?style=flat-square&logo=githubpages&logoColor=white" alt="GitHub Pages">
+    <img src="https://img.shields.io/badge/%E2%86%92%20Site%20ao%20vivo-000?style=for-the-badge&logo=githubpages&logoColor=white" alt="Site ao vivo">
   </a>
-</p>
-
-<br/>
-
-Repositório criado por **renato0x** para manter ativa a hospedagem do site de portfólio de **Lana Macedo**, estilista multidisciplinar.
-
-> Este repositório existe exclusivamente para viabilizar o deploy do site via GitHub Pages. Nenhum conteúdo do portfólio (imagens, código-fonte, coleções) é exibido nesta página.
-
-<br/>
-
-###  Acesso
-
-- **Site ao vivo:** [renato0x.github.io/LanaMacedo](https://renato0x.github.io/LanaMacedo/)
-
-<br/>
-
-###  Tecnologias
-
-`HTML` · `CSS` · `JavaScript`
-
-<br/>
-
-###  Deploy
-
-| Plataforma | Branch | Pasta |
-|-----------|--------|-------|
-| GitHub Pages | `main` | `/` |
-
-<br/>
-
-###  Licença
-
-© Lana Macedo. Todos os direitos reservados.
+  <br/><br/>
+  <sub>Criado por <strong>renato0x</strong> · Hospedagem GitHub Pages</sub>
+  <br/><br/><br/>
+  <hr width="40%"/>
+  <br/>
+  <sub>© Lana Macedo. Todos os direitos reservados.</sub>
+</div>
