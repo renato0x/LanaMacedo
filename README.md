@@ -7,6 +7,6 @@
   <br/><br/>
   <sub>Criado por <strong>renato0x</strong> · Hospedagem GitHub Pages</sub>
   <br/><br/><br/>
-  <hr width="40%"/>
+
  
 </div>
