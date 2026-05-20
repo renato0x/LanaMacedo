@@ -8,6 +8,5 @@
   <sub>Criado por <strong>renato0x</strong> · Hospedagem GitHub Pages</sub>
   <br/><br/><br/>
   <hr width="40%"/>
-  <br/>
-  <sub>© renato0x. Todos os direitos reservados.</sub>
+ 
 </div>
